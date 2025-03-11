@@ -6,6 +6,7 @@ import Cregister from './crudcomponents/Cregister'
 import Clogin from './crudcomponents/Clogin'
 import UserDashboard from './crudcomponents/UserDashboard'
 import Cupdate from './crudcomponents/Cupdate'
+import ProtectedRoute from '../helpers/ProtectedRoute'
 const CrudHome = () => {
     const[islogin,setIslogin]=useState(false)
     const route=createBrowserRouter([
@@ -23,11 +24,15 @@ const CrudHome = () => {
                 },
                 {
                     path:"/dashboard",
-                    element:<UserDashboard/>
+                    element:<ProtectedRoute>
+                        <UserDashboard/>
+                    </ProtectedRoute>
                 },
                 {
                     path:"/updateuser/:slug",
-                    element:<Cupdate/>
+                    element:<ProtectedRoute>
+                        <Cupdate/>
+                    </ProtectedRoute>
                 }
             ]
         }

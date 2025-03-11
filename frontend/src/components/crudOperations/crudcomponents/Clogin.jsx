@@ -25,7 +25,8 @@ const navigate=useNavigate()
     try {
       const {data}=await axios.post("http://localhost:8090/api/login",{...formData})
       console.log(data)
-      if(data.userId){
+      if(data.token){
+        localStorage.setItem("verification_token",data.token)
         navigate("/dashboard")
       }
       else{

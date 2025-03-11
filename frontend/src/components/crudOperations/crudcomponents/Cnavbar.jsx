@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 const Cnavbar = () => {
   const navigate=useNavigate()
   const logout=()=>{
-    localStorage.removeItem("jwt-token")
+    localStorage.removeItem("verification_token")
     navigate("/login")
     toast.success("Logged out successfully",{position:"top-center"})
   }

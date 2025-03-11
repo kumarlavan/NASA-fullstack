@@ -1,9 +1,11 @@
 const express=require("express")
+const jwt=require("jsonwebtoken")
 const { User } = require("../models/user_Models")
+const authentication = require("../middleware/verificationToken")
 
 const routes=express.Router()
 //! all users
-routes.get("/users",async(req,res)=>{
+routes.get("/users",authentication,async(req,res)=>{
    try {
     const result=await User.find({},{password:0,__v:0})
     res.status(200).json({message:"Data Fetches Successfully",result})
@@ -38,7 +40,8 @@ routes.post("/login",async(req,res)=>{
          }
          else{
             if(cuurrUser.password===password){
-               res.status(200).json({message:"logged In successfully",userId:cuurrUser._id})
+               const token=jwt.sign({user:cuurrUser},process.env.JWT_SECRET_KEY,{expiresIn:"1hr"})
+               res.status(200).json({message:"logged In successfully",currentuser:{imgurl:cuurrUser.imageurl,username:cuurrUser.firstName},token})
             }
             else{
                res.status(200).json({message:"Invalid Password"})
@@ -65,7 +68,7 @@ routes.get("/users/:id",async(req,res)=>{
 })
 
 //! update user by id
-routes.put("/update/:id",async(req,res)=>{
+routes.put("/update/:id",authentication,async(req,res)=>{
    try {
       const {id}=req.params
    const {firstName,lastName,age,mailId,gender,mobileNumber,imageurl,password}=req.body
@@ -79,7 +82,7 @@ routes.put("/update/:id",async(req,res)=>{
 
 
 //! delete
-routes.delete("/deleteuser/:id",async(req,res)=>{
+routes.delete("/deleteuser/:id",authentication,async(req,res)=>{
    const {id}=req.params
    try {
          await User.deleteOne({_id:id})

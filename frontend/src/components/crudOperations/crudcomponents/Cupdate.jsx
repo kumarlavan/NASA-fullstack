@@ -45,7 +45,7 @@ const Cupdate = () => {
         const password=getPassword(formData)
         // console.log({...formData,password});
         console.log(formData)
-        const result=axios.put(`http://localhost:8090/api/update/${slug}`,{...formData,password})
+        const result=axios.put(`http://localhost:8090/api/update/${slug}`,{...formData,password},{headers:{"Authorization":`Bearer ${localStorage.getItem("verification_token")}`}})
         result.then((data)=>{
             console.log(data.message);
             toast.success("updation Successfully")
