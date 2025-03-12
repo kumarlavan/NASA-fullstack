@@ -1,9 +1,25 @@
 const express=require("express")
 const jwt=require("jsonwebtoken")
+const nodemailer=require("nodemailer")
 const { User } = require("../models/user_Models")
 const authentication = require("../middleware/verificationToken")
 
 const routes=express.Router()
+
+const transportor=nodemailer.createTransport({
+   service:"gmail",
+   auth:{
+      user:process.env.MY_MAIL,
+      pass:process.env.MAIL_KEY,
+   }
+})
+
+
+
+
+
+
+
 //! all users
 routes.get("/users",authentication,async(req,res)=>{
    try {
@@ -16,6 +32,36 @@ routes.get("/users",authentication,async(req,res)=>{
 //! create user
 routes.post("/createuser",async(req,res)=>{
    const {firstName,lastName,age,mailId,gender,mobileNumber,imageurl,password}=req.body
+   const mailoptions={
+      from:process.env.MY_MAIL,
+      to:mailId,
+      subject:"Registration Successful – Welcome!",
+      text:`Dear ${firstName},
+
+We are pleased to inform you that your registration has been successfully completed! Welcome aboard!
+
+Here are your registration details:
+
+Username: ${firstName}
+Email Address: ${mailId}
+Registration Date: ${new Date().toLocaleString()}
+Your password has been auto-generated following our password policy:
+
+- **Password Rule**: The password is a combination of the following:
+  1. **First Name** (capitalized),
+  2. **Age**,
+  3. **"@" symbol**, 
+  4. **Last 3 digits of your mobile number**.
+
+For example, if your name is John, age is 25, and your mobile number ends in 123, your password will be: **John25@123**
+You can now access your account and enjoy all the features we offer. If you have any questions or need assistance, please feel free to contact us at [support email/phone].
+
+Thank you for registering with us. We look forward to serving you!
+
+Best regards,
+MERN-NASA
+mern.nasa@gmail.com`,
+  }
    try {
       const existingUser=await User.findOne({mailId})
       if(existingUser){
@@ -23,7 +69,16 @@ routes.post("/createuser",async(req,res)=>{
       }
       else{
          const result=await User.insertOne({firstName,lastName,age,mailId,password,gender,mobileNumber,imageurl})
-         res.status(200).json({message:"User Register Successfully",userID:result._id})
+         transportor.sendMail(mailoptions,(err,info)=>{
+            if(err){
+               console.log(err)
+               res.status(500).json({message:"failed to send mail"})
+            }
+            else{
+               console.log(info.response)
+               res.status(200).json({message:"User Register Successfully.You will get a mail",userID:result._id})
+            }
+         })
       }
    } catch (error) {
       res.status(500).json({message:"Internal Server Error",error})
