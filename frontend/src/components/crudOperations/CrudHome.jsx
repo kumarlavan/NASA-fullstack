@@ -7,6 +7,7 @@ import Clogin from './crudcomponents/Clogin'
 import UserDashboard from './crudcomponents/UserDashboard'
 import Cupdate from './crudcomponents/Cupdate'
 import ProtectedRoute from '../helpers/ProtectedRoute'
+import RestPassword from './crudcomponents/RestPassword'
 const CrudHome = () => {
     const[islogin,setIslogin]=useState(false)
     const route=createBrowserRouter([
@@ -33,6 +34,10 @@ const CrudHome = () => {
                     element:<ProtectedRoute>
                         <Cupdate/>
                     </ProtectedRoute>
+                },
+                {
+                    path:"/resetpassword",
+                    element:<RestPassword/>
                 }
             ]
         }

@@ -148,6 +148,21 @@ routes.delete("/deleteuser/:id",authentication,async(req,res)=>{
    }
 })
 
+//! verify the email to reset password
+
+routes.post("/resetpassword",async(req,res)=>{
+   const {email,password}=req.body
+   const existUser=await User.findOne({mailId:email})
+   if(!existUser){
+      res.status(404).json({message:"User Not Found"})
+   }
+   else{
+      res.status(200).json({message:"you can update your password"})
+   }
+})
+
+
+
 
 
 module.exports=routes

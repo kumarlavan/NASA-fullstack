@@ -60,6 +60,7 @@ const navigate=useNavigate()
           </button>
         </form>
         <p style={{marginTop:"10px"}}>Don't have an Account ? <Link to="/register" style={{color:"blue"}}>Click here to Register</Link></p>
+        <p style={{marginTop:"10px"}}><Link to="/resetpassword" style={{color:"blue"}}>Forgot Password</Link></p>
       </div>
     </div>
    </div>

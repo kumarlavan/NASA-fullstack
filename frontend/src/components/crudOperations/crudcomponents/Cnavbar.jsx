@@ -16,7 +16,7 @@ const Cnavbar = () => {
         <div className="rightnav">
             <ul>
               {
-                true?<li><button onClick={logout}>Logout</button></li>:<li><Link to='/login'>Login</Link></li>
+                localStorage.getItem("verification_token")?<li><button onClick={logout}>Logout</button></li>:<li><Link to='/login'>Login</Link></li>
               }
             
             
