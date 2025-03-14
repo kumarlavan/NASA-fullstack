@@ -1,11 +1,12 @@
 const express=require("express")
 const jwt=require("jsonwebtoken")
 const nodemailer=require("nodemailer")
+const bcrypt=require("bcrypt")
 const { User } = require("../models/user_Models")
 const authentication = require("../middleware/verificationToken")
 
 const routes=express.Router()
-
+const saltrounds=10
 const transportor=nodemailer.createTransport({
    service:"gmail",
    auth:{
@@ -68,7 +69,8 @@ mern.nasa@gmail.com`,
          res.status(200).json({message:"user email is already exist"}) 
       }
       else{
-         const result=await User.insertOne({firstName,lastName,age,mailId,password,gender,mobileNumber,imageurl})
+         const hashedpassword= await bcrypt.hash(password,saltrounds)
+         const result=await User.insertOne({firstName,lastName,age,mailId,password:hashedpassword,gender,mobileNumber,imageurl})
          transportor.sendMail(mailoptions,(err,info)=>{
             if(err){
                console.log(err)
@@ -94,13 +96,13 @@ routes.post("/login",async(req,res)=>{
             res.status(404).json({message:"User Not Registered"})
          }
          else{
-            if(cuurrUser.password===password){
+             bcrypt.compare(password,cuurrUser.password,(err,result)=>{
+               if(err){
+                  res.status(200).json({message:"Invalid Password"})
+               }
                const token=jwt.sign({user:cuurrUser},process.env.JWT_SECRET_KEY,{expiresIn:"1hr"})
                res.status(200).json({message:"logged In successfully",currentuser:{imgurl:cuurrUser.imageurl,username:cuurrUser.firstName},token})
-            }
-            else{
-               res.status(200).json({message:"Invalid Password"})
-            }
+             })
          }
 
 
@@ -150,14 +152,18 @@ routes.delete("/deleteuser/:id",authentication,async(req,res)=>{
 
 //! verify the email to reset password
 
-routes.post("/resetpassword",async(req,res)=>{
-   const {email,password}=req.body
+routes.put("/resetpassword",async(req,res)=>{
+   const {email,newPassword}=req.body
    const existUser=await User.findOne({mailId:email})
+   console.log(existUser)
    if(!existUser){
       res.status(404).json({message:"User Not Found"})
    }
    else{
-      res.status(200).json({message:"you can update your password"})
+      const newhashedpassword=await bcrypt.hash(newPassword,saltrounds)
+      const result=await User.updateOne({mailId:email},{$set:{password:newhashedpassword}})
+      console.log(result)
+      res.status(200).json({message:"password updated successfully"})
    }
 })
 

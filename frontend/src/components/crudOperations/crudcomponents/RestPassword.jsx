@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import "./resetpassword.css"
 import axios from 'axios';
+import {toast} from "react-toastify"
+import {useNavigate} from "react-router-dom"
 const RestPassword = () => {
     const [email, setEmail] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -8,7 +10,7 @@ const RestPassword = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [error, setError] = useState('');
     const [passwordError, setPasswordError] = useState('');
-  
+    const navigate=useNavigate()
     const handleSubmit = async(e) => {
       e.preventDefault();
   
@@ -31,13 +33,16 @@ const RestPassword = () => {
       
       // Handle the password reset logic, such as calling an API
       try {
-        const {data}= await axios.post("http://localhost:8090/api/resetpassword",{email,newPassword})
+        const {data}= await axios.put("http://localhost:8090/api/resetpassword",{email,newPassword})
       console.log(data);
       setIsSubmitted(true);
       setError('');
+      toast.success(data.message,{position:"top-right"})
       setPasswordError('');
+      setTimeout(()=>{
+      navigate("/login")
+      },3000)
       } catch (error) {
-        
         setError(error.response.data.message)
       }
     };
@@ -49,6 +54,7 @@ const RestPassword = () => {
           {isSubmitted ? (
             <div className="success-message">
               <p>Your password has been successfully reset!</p>
+
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="reset-password-form">
